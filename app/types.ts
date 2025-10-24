@@ -55,3 +55,36 @@ export type SalesComparison = {
     isGrowth: boolean | null,
     message: string
 }
+
+export type Wine = {
+    wineId: number;
+    wineDesignation: string;
+    category: string;
+    country: string;
+    region: string;
+    grapeVariety: string;
+    year: number;
+    alcoholContent: number;
+    bottleSize: string;
+    priceRange: string;
+}
+
+export type SalesBetterFormat = {
+    saleID: number;
+    customerName: string;
+    wineDesignation: string;
+    quantity: number;
+    saleAmount: number;
+    saleDate: string;
+    wineCategory: string;
+    customerCountry: string;
+    wineCountry: string;
+    customerState: string;
+}
+
+export type CustLocation = {
+    postalCode: string;
+    country: string;
+    state: string;
+    city: string;
+}
