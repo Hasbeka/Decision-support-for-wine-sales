@@ -1,0 +1,57 @@
+
+
+export type GeneralCustomerInfo = {
+    total: number;
+    avgAge: number;
+    avgLoyaltyPoints: number;
+    gender: string;
+    minAge: number;
+    maxAge: number;
+    womenPercentage: number;
+    menPercentage: number;
+}
+
+export type Customer = {
+    customerID: number,
+    name: string,
+    email: string,
+    phone: string,
+    address: string,
+    age: number,
+    gender: string,
+    purchaseHistory: string[],
+    loyaltyPoints: number
+
+}
+
+export type Sale = {
+    saleID: number,
+    customerID: number,
+    wineDesignation: string,
+    quantity: number,
+    saleAmount: number,
+    saleDate: Date
+}
+
+export type GeneralSalesInfo = {
+    totalSales: number;
+    totalRevenue: number;
+    avgSaleAmount: number;
+    bestSellingWine: string;
+    worstSellingWine: string;
+    customerWithHighestPurchase: Map<string, number>;
+}
+
+export type MonthlySales = {
+    year: number,
+    month: number,
+    totalAmount: number
+}
+
+export type SalesComparison = {
+    currentMonth: MonthlySales,
+    previousMonth: MonthlySales | null,
+    growthPercentage: number | null,
+    isGrowth: boolean | null,
+    message: string
+}
