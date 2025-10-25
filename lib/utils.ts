@@ -71,3 +71,18 @@ export function collectionWithoutDuplicates<T>(arr: T[], keyFn: (item: T) => any
     return true;
   });
 }
+
+export function parseDate(dateStr: string): Date | null {
+  const [day, month, year] = dateStr.split("/").map(Number);
+  if (!day || !month || !year) return null;
+  return new Date(year, month - 1, day);
+}
+
+export function formatNumberEnglishStyle(number: number) {
+
+  if (isNaN(number) || number === null || number === undefined) {
+    return "Invalid number";
+  }
+
+  return Number(number).toLocaleString('en-US');
+}

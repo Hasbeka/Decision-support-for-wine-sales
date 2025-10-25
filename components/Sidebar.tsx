@@ -1,9 +1,11 @@
 'use client';
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
 import { Wine, BarChart3, TrendingUp, Users } from 'lucide-react'
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
 
 const items = [
     { label: 'Dashboard', href: '/', icon: BarChart3 },
@@ -13,7 +15,13 @@ const items = [
 ]
 
 const AppSidebar = () => {
+
     const [activeItem, setActiveItem] = React.useState('Dashboard')
+    const urlElement = usePathname();
+
+    useEffect(() => {
+        setActiveItem(urlElement)
+    }, [urlElement])
 
     return (
         <Sidebar className="border-r border-neutral-700 bg-black z-20 ">
@@ -38,7 +46,7 @@ const AppSidebar = () => {
                         <SidebarMenu className="space-y-2">
                             {items.map((item) => {
                                 const Icon = item.icon
-                                const isActive = activeItem === item.label
+                                const isActive = activeItem === item.href
 
                                 return (
                                     <SidebarMenuItem key={item.label}>

@@ -1,7 +1,7 @@
 "use client"
 
 import { TrendingUp, TrendingDown, Minus } from "lucide-react"
-import { CartesianGrid, Line, LineChart, XAxis } from "recharts"
+import { CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis } from "recharts"
 import { useState, useMemo } from "react"
 
 import {
@@ -15,8 +15,6 @@ import {
 import {
     ChartConfig,
     ChartContainer,
-    ChartTooltip,
-    ChartTooltipContent,
 } from "@/components/ui/chart"
 import { Slider } from "@/components/ui/slider"
 import { MonthlySales, SalesComparison } from "@/app/types"
@@ -115,29 +113,29 @@ const SalesChart = ({ chartData, salesComparison }: SalesChartProps) => {
                     </div>
 
                     <ChartContainer config={chartConfig}>
-                        <LineChart
-                            accessibilityLayer
-                            data={displayedData}
-                            margin={{
-                                left: 24,
-                                right: 24,
-                            }}
-                        >
+                        <LineChart data={displayedData} margin={{ left: 24, right: 24 }}>
                             <CartesianGrid vertical={false} />
                             <XAxis
                                 dataKey="yearMonth"
                                 tickLine={false}
                                 axisLine={false}
                                 tickMargin={8}
-                                tickFormatter={(value) => value}
                             />
-                            <ChartTooltip
-                                cursor={false}
-                                content={<ChartTooltipContent hideLabel />}
+                            <YAxis
+                                tickFormatter={(value) => {
+                                    if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`;
+                                    if (value >= 1_000) return `$${(value / 1_000).toFixed(1)}K`;
+                                    return `$${value}`;
+                                }}
+                            />
+
+                            <Tooltip
+                                formatter={(value: any) => `$${Number(value).toFixed(2)}`}
                             />
                             <Line
+                                name="Total Amount"
                                 dataKey="totalAmount"
-                                type="natural"
+                                type="natural" // smooth line
                                 stroke="red"
                                 strokeWidth={2}
                                 dot={false}

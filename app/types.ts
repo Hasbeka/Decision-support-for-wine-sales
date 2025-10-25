@@ -47,15 +47,6 @@ export type MonthlySales = {
     month: number,
     totalAmount: number
 }
-
-export type SalesComparison = {
-    currentMonth: MonthlySales,
-    previousMonth: MonthlySales | null,
-    growthPercentage: number | null,
-    isGrowth: boolean | null,
-    message: string
-}
-
 export type Wine = {
     wineId: number;
     wineDesignation: string;
@@ -68,6 +59,23 @@ export type Wine = {
     bottleSize: string;
     priceRange: string;
 }
+
+export type MonthlySalesF = {
+    year: number,
+    month: number,
+    totalAmount: number,
+    category: string
+}
+
+export type SalesComparison = {
+    currentMonth: MonthlySales,
+    previousMonth: MonthlySales | null,
+    growthPercentage: number | null,
+    isGrowth: boolean | null,
+    message: string
+}
+
+
 
 export type SalesBetterFormat = {
     saleID: number;

@@ -1,4 +1,5 @@
-import { MonthlySales, Sale, SalesComparison } from "@/app/types";
+import { MonthlySales, MonthlySalesF, Sale, SalesBetterFormat, SalesComparison } from "@/app/types";
+
 
 export function calculateTotalRevenue(salesList: any[]): number {
     return salesList.reduce((total, sale) => total + sale.saleAmount, 0);
@@ -72,7 +73,7 @@ export function getCustomerWithHighestPurchase(salesList: any[], customerList: a
 export function getSalesAmountByMonth(sales: Sale[], year: number, month: number): number {
     return sales.reduce((total, sale) => {
         const saleYear = sale.saleDate.getFullYear();
-        const saleMonth = sale.saleDate.getMonth() + 1; // +1 pentru că getMonth() returnează 0-11
+        const saleMonth = sale.saleDate.getMonth() + 1;
 
         if (saleYear === year && saleMonth === month) {
             return total + sale.saleAmount;
@@ -96,6 +97,45 @@ export function getMonthlySales(sales: Sale[]): MonthlySales[] {
         const [year, month] = key.split('-').map(Number);
         return { year, month, totalAmount };
     });
+}
+
+export function getMonthlySalesF(sales: SalesBetterFormat[], category: string): MonthlySalesF[] {
+    const monthlyMap = new Map<string, number>();
+    if (category === "total") {
+
+        sales.forEach(sale => {
+            const saleDate = new Date(sale.saleDate)
+            const year = saleDate.getFullYear();
+            const month = saleDate.getMonth() + 1;
+            const key = `${year}-${month}`;
+
+            monthlyMap.set(key, (monthlyMap.get(key) || 0) + sale.saleAmount);
+        });
+
+        return Array.from(monthlyMap.entries()).map(([key, totalAmount]) => {
+            const [year, month] = key.split('-').map(Number);
+            return { year, month, totalAmount, category };
+        });
+    }
+    else {
+
+        const catSales = sales.filter(sale => {
+            return sale.wineCategory === category
+        });
+        catSales.forEach(sale => {
+            const saleDate = new Date(sale.saleDate)
+            const year = saleDate.getFullYear();
+            const month = saleDate.getMonth() + 1;
+            const key = `${year}-${month}`;
+
+            monthlyMap.set(key, (monthlyMap.get(key) || 0) + sale.saleAmount);
+        });
+
+        return Array.from(monthlyMap.entries()).map(([key, totalAmount]) => {
+            const [year, month] = key.split('-').map(Number);
+            return { year, month, totalAmount, category };
+        });
+    }
 }
 
 export function compareWithPreviousMonth(sales: Sale[]): SalesComparison {
@@ -142,4 +182,40 @@ export function compareWithPreviousMonth(sales: Sale[]): SalesComparison {
         message,
 
     };
+}
+
+export function getSalesByMonthAndCategory(sales: SalesBetterFormat[]): MonthlySalesF[] {
+    const monthlyMap = new Map<string, number>();
+
+    sales.forEach(sale => {
+        const date = parseDateDDMMYYYY(sale.saleDate);
+        if (!date) return; // skip invalid dates
+
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const category = sale.wineCategory;
+
+        const key = `${year}-${month}-${category}`;
+        monthlyMap.set(key, (monthlyMap.get(key) || 0) + sale.saleAmount);
+    });
+
+    const result: MonthlySalesF[] = Array.from(monthlyMap.entries()).map(([key, totalAmount]) => {
+        const [year, month, category] = key.split("-");
+        return {
+            year: Number(year),
+            month: Number(month),
+            category,
+            totalAmount,
+        };
+    });
+
+    return result.sort((a, b) =>
+        a.year - b.year || a.month - b.month || a.category.localeCompare(b.category)
+    );
+}
+
+export function parseDateDDMMYYYY(dateStr: string): Date | null {
+    const [day, month, year] = dateStr.split("/").map(Number);
+    if (!day || !month || !year) return null;
+    return new Date(year, month - 1, day);
 }

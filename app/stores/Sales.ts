@@ -1,24 +1,27 @@
 import { create } from "zustand";
-import { GeneralSalesInfo, MonthlySales, Sale, SalesBetterFormat, SalesComparison } from "../types";
+import { GeneralSalesInfo, MonthlySales, SalesSummary, Sale, SalesBetterFormat, SalesComparison, MonthlySalesF } from "../types";
 import { readCsv } from "@/lib/CsvReader";
 import { toSales } from "@/lib/utils";
 import { useCustomersStore } from "./Customers";
-import { calculateAvgSaleAmount, calculateTotalRevenue, compareWithPreviousMonth, getBestSellingWine, getCustomerWithHighestPurchase, getMonthlySales, getSalesAmountByMonth, getWorstSellingWine } from "@/lib/GeneralSalesInfo";
+import { getSalesByMonthAndCategory, calculateAvgSaleAmount, calculateTotalRevenue, compareWithPreviousMonth, getBestSellingWine, getCustomerWithHighestPurchase, getMonthlySales, getWorstSellingWine } from "@/lib/GeneralSalesInfo";
 import { useWineStore } from "./Wine";
 import { useLocationsStore } from "./Locations";
 
 
 type SalesState = {
     sales: Sale[];
+    salesBetterFormat: SalesBetterFormat[]
     setSales: () => void;
     getSalesStats: () => GeneralSalesInfo;
     amountOnMonths: () => MonthlySales[];
     salesComparison: () => SalesComparison;
-    getSalesBetterFormat: () => SalesBetterFormat[];
+    getSalesBetterFormat: () => void;
+    montlySalesOnCategory: () => MonthlySalesF[]
 }
 
 export const useSalesStore = create<SalesState>((set, get) => ({
     sales: [],
+    salesBetterFormat: [],
     setSales: async () => {
         const salesData = await readCsv('Sales_Data_Dataset.csv');
         const salesList = salesData.map(toSales);
@@ -58,25 +61,31 @@ export const useSalesStore = create<SalesState>((set, get) => ({
         const wineMap = new Map(wines.map(w => [w.wineDesignation, w]));
         const locationMap = new Map(locations.map(l => [l.postalCode, l]));
 
-        return salesList.map(sale => {
-            const customer = customerMap.get(sale.customerID);
-            const wine = wineMap.get(sale.wineDesignation);
+        set({
+            salesBetterFormat: salesList.map(sale => {
+                const customer = customerMap.get(sale.customerID);
+                const wine = wineMap.get(sale.wineDesignation);
 
-            const postalCode = customer?.address.match(/\b\d{5}\b/)?.[0];
-            const location = postalCode ? locationMap.get(postalCode) : undefined;
+                const postalCode = customer?.address.match(/\b\d{5}\b/)?.[0];
+                const location = postalCode ? locationMap.get(postalCode) : undefined;
 
-            return {
-                saleID: sale.saleID,
-                customerName: customer?.name || 'Unknown Customer',
-                wineDesignation: sale.wineDesignation,
-                saleDate: new Date(sale.saleDate).toLocaleDateString(),
-                saleAmount: sale.saleAmount,
-                quantity: sale.quantity,
-                wineCategory: wine?.category || 'Unknown Category',
-                customerCountry: location?.country || '-',
-                customerState: location?.state || '-',
-                wineCountry: wine?.country || '-'
-            };
-        });
-    }
+                return {
+                    saleID: sale.saleID,
+                    customerName: customer?.name || 'Unknown Customer',
+                    wineDesignation: sale.wineDesignation,
+                    saleDate: new Date(sale.saleDate).toLocaleDateString(),
+                    saleAmount: sale.saleAmount,
+                    quantity: sale.quantity,
+                    wineCategory: wine?.category || 'Unknown Category',
+                    customerCountry: location?.country || '-',
+                    customerState: location?.state || '-',
+                    wineCountry: wine?.country || '-'
+                };
+            })
+        })
+    },
+    montlySalesOnCategory: () => {
+        const sales = get().salesBetterFormat;
+        return getSalesByMonthAndCategory(sales);
+    },
 }))
