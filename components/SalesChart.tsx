@@ -34,7 +34,7 @@ interface SalesChartProps {
     salesComparison: SalesComparison
 }
 
-const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+export const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 const SalesChart = ({ chartData, salesComparison }: SalesChartProps) => {
     // Sort and format data

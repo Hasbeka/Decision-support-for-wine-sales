@@ -64,6 +64,8 @@ export type MonthlySalesF = {
     year: number,
     month: number,
     totalAmount: number,
+    quantity: number,
+    avgPrice: number,
     category: string
 }
 
@@ -96,3 +98,11 @@ export type CustLocation = {
     state: string;
     city: string;
 }
+
+export type MonthlyStats = {
+    year: number;
+    month: number;
+    avgPrice: number;
+    totalQty: number;
+    totalAmount: number;
+};

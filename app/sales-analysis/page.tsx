@@ -4,6 +4,9 @@ import { useLocationsStore } from "../stores/Locations";
 import { useSalesStore } from "../stores/Sales";
 import { useWineStore } from "../stores/Wine";
 import SalesChartOnCategory from "@/components/SalesChartOnCategory";
+import SalesPriceStats from "@/components/SalesPriceStats";
+import MarketingAnalytics from "@/components/MarketingAnalytics";
+
 
 
 const page = async () => {
@@ -30,13 +33,18 @@ const page = async () => {
     useSalesStore.getState().getSalesBetterFormat();
     const salesBetterFormat = useSalesStore.getState().salesBetterFormat;
     const salesSummaryOnCat = useSalesStore.getState().montlySalesOnCategory();
+    console.log(salesSummaryOnCat[0]);
     // console.log(salesSummaryOnCat)
-    const salesComparison = useSalesStore.getState().salesComparison();
 
+    const monthlySales = useSalesStore.getState().montlyStats();
+    console.log(monthlySales[0])
     return (
         <div className="min-h-screen w-full  bg-zinc-50 font-sans dark:bg-black" >
+
             <SalesPage sales={salesBetterFormat} />
             <SalesChartOnCategory salesData={salesSummaryOnCat} />
+            <SalesPriceStats salesStats={monthlySales} salesCatStats={salesSummaryOnCat} />
+            <MarketingAnalytics chartData={monthlySales} />
         </div>
     )
 }

@@ -1,9 +1,9 @@
 import { create } from "zustand";
-import { GeneralSalesInfo, MonthlySales, SalesSummary, Sale, SalesBetterFormat, SalesComparison, MonthlySalesF } from "../types";
+import { GeneralSalesInfo, MonthlySales, MonthlyStats, Sale, SalesBetterFormat, SalesComparison, MonthlySalesF } from "../types";
 import { readCsv } from "@/lib/CsvReader";
 import { toSales } from "@/lib/utils";
 import { useCustomersStore } from "./Customers";
-import { getSalesByMonthAndCategory, calculateAvgSaleAmount, calculateTotalRevenue, compareWithPreviousMonth, getBestSellingWine, getCustomerWithHighestPurchase, getMonthlySales, getWorstSellingWine } from "@/lib/GeneralSalesInfo";
+import { getSalesByMonthAndCategory, calculateAvgSaleAmount, calculateTotalRevenue, compareWithPreviousMonth, getBestSellingWine, getCustomerWithHighestPurchase, getMonthlySales, getWorstSellingWine, getMonthlySalesStats } from "@/lib/GeneralSalesInfo";
 import { useWineStore } from "./Wine";
 import { useLocationsStore } from "./Locations";
 
@@ -16,7 +16,8 @@ type SalesState = {
     amountOnMonths: () => MonthlySales[];
     salesComparison: () => SalesComparison;
     getSalesBetterFormat: () => void;
-    montlySalesOnCategory: () => MonthlySalesF[]
+    montlySalesOnCategory: () => MonthlySalesF[];
+    montlyStats: () => MonthlyStats[];
 }
 
 export const useSalesStore = create<SalesState>((set, get) => ({
@@ -87,5 +88,8 @@ export const useSalesStore = create<SalesState>((set, get) => ({
     montlySalesOnCategory: () => {
         const sales = get().salesBetterFormat;
         return getSalesByMonthAndCategory(sales);
+    },
+    montlyStats: (): MonthlyStats[] => {
+        return getMonthlySalesStats(useSalesStore.getState().sales)
     },
 }))

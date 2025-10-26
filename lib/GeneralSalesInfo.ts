@@ -1,4 +1,4 @@
-import { MonthlySales, MonthlySalesF, Sale, SalesBetterFormat, SalesComparison } from "@/app/types";
+import { MonthlySales, MonthlySalesF, MonthlyStats, Sale, SalesBetterFormat, SalesComparison } from "@/app/types";
 
 
 export function calculateTotalRevenue(salesList: any[]): number {
@@ -99,44 +99,6 @@ export function getMonthlySales(sales: Sale[]): MonthlySales[] {
     });
 }
 
-export function getMonthlySalesF(sales: SalesBetterFormat[], category: string): MonthlySalesF[] {
-    const monthlyMap = new Map<string, number>();
-    if (category === "total") {
-
-        sales.forEach(sale => {
-            const saleDate = new Date(sale.saleDate)
-            const year = saleDate.getFullYear();
-            const month = saleDate.getMonth() + 1;
-            const key = `${year}-${month}`;
-
-            monthlyMap.set(key, (monthlyMap.get(key) || 0) + sale.saleAmount);
-        });
-
-        return Array.from(monthlyMap.entries()).map(([key, totalAmount]) => {
-            const [year, month] = key.split('-').map(Number);
-            return { year, month, totalAmount, category };
-        });
-    }
-    else {
-
-        const catSales = sales.filter(sale => {
-            return sale.wineCategory === category
-        });
-        catSales.forEach(sale => {
-            const saleDate = new Date(sale.saleDate)
-            const year = saleDate.getFullYear();
-            const month = saleDate.getMonth() + 1;
-            const key = `${year}-${month}`;
-
-            monthlyMap.set(key, (monthlyMap.get(key) || 0) + sale.saleAmount);
-        });
-
-        return Array.from(monthlyMap.entries()).map(([key, totalAmount]) => {
-            const [year, month] = key.split('-').map(Number);
-            return { year, month, totalAmount, category };
-        });
-    }
-}
 
 export function compareWithPreviousMonth(sales: Sale[]): SalesComparison {
     const monthlySales = getMonthlySales(sales);
@@ -185,7 +147,7 @@ export function compareWithPreviousMonth(sales: Sale[]): SalesComparison {
 }
 
 export function getSalesByMonthAndCategory(sales: SalesBetterFormat[]): MonthlySalesF[] {
-    const monthlyMap = new Map<string, number>();
+    const monthlyMap = new Map<string, MontlyNumbers>();
 
     sales.forEach(sale => {
         const date = parseDateDDMMYYYY(sale.saleDate);
@@ -196,16 +158,23 @@ export function getSalesByMonthAndCategory(sales: SalesBetterFormat[]): MonthlyS
         const category = sale.wineCategory;
 
         const key = `${year}-${month}-${category}`;
-        monthlyMap.set(key, (monthlyMap.get(key) || 0) + sale.saleAmount);
+        monthlyMap.set(key, {
+            quantity: (monthlyMap.get(key)?.quantity || 0) + sale.quantity,
+            saleAmount: (monthlyMap.get(key)?.saleAmount || 0) + sale.saleAmount,
+            avgPrice: ((monthlyMap.get(key)?.saleAmount || 0) + sale.saleAmount) / (monthlyMap.get(key)?.quantity || 0) + sale.quantity
+        });
     });
 
-    const result: MonthlySalesF[] = Array.from(monthlyMap.entries()).map(([key, totalAmount]) => {
+    const result: MonthlySalesF[] = Array.from(monthlyMap.entries()).map(([key, numbers]) => {
         const [year, month, category] = key.split("-");
+        const { quantity, avgPrice, saleAmount } = numbers;
         return {
             year: Number(year),
             month: Number(month),
             category,
-            totalAmount,
+            quantity,
+            avgPrice,
+            totalAmount: saleAmount
         };
     });
 
@@ -218,4 +187,34 @@ export function parseDateDDMMYYYY(dateStr: string): Date | null {
     const [day, month, year] = dateStr.split("/").map(Number);
     if (!day || !month || !year) return null;
     return new Date(year, month - 1, day);
+}
+
+type MontlyNumbers = {
+    quantity: number;
+    saleAmount: number;
+    avgPrice: number;
+}
+
+
+export function getMonthlySalesStats(sales: Sale[]): MonthlyStats[] {
+    const monthlyMap = new Map<string, MontlyNumbers>();
+
+    sales.forEach(sale => {
+        const year = sale.saleDate.getFullYear();
+        const month = sale.saleDate.getMonth() + 1;
+        const key = `${year}-${month}`;
+
+
+        monthlyMap.set(key, {
+            quantity: (monthlyMap.get(key)?.quantity || 0) + sale.quantity,
+            saleAmount: (monthlyMap.get(key)?.saleAmount || 0) + sale.saleAmount,
+            avgPrice: ((monthlyMap.get(key)?.saleAmount || 0) + sale.saleAmount) / (monthlyMap.get(key)?.quantity || 0) + sale.quantity
+        });
+    });
+
+    return Array.from(monthlyMap.entries()).map(([key, numbers]) => {
+        const [year, month] = key.split('-').map(Number);
+        const { quantity, saleAmount, avgPrice } = numbers;
+        return { year, month, totalQty: quantity, totalAmount: saleAmount, avgPrice };
+    });
 }
