@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react'
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
-import { Wine, BarChart3, TrendingUp, Users } from 'lucide-react'
+import { Wine, BarChart3, TrendingUp, Users, UsersRound } from 'lucide-react'
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -10,7 +10,7 @@ import { usePathname } from 'next/navigation';
 const items = [
     { label: 'Dashboard', href: '/', icon: BarChart3 },
     { label: 'Sales Analysis', href: '/sales-analysis', icon: TrendingUp },
-    { label: 'Customer Insights', href: '/customer-insights', icon: Users },
+    { label: 'Customer & Wine Stats', href: '/customer-insights', icon: Users },
     { label: 'Product Performance', href: '/product-performance', icon: Wine },
 ]
 
